@@ -29,11 +29,8 @@ RUN adduser --quiet jenkins
 # Set password for the jenkins user (you may want to alter this).
 RUN echo "jenkins:jenkins" | chpasswd
 
-# Add docker-user group to match the host's docker user
-RUN addgroup --quiet --gid 498 docker-user 
-
-# Add user jenkins to the docker-user group
-RUN usermod -a -G docker-user jenkins
+# Add user jenkins to the docker group
+RUN usermod -a -G docker jenkins
 
 # Standard SSH port
 EXPOSE 22
