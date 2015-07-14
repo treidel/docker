@@ -1,12 +1,5 @@
-FROM ubuntu:trusty
+FROM reideltj/base
 MAINTAINER reideltj
-RUN apt-get update; apt-get install -y unzip openjdk-7-jre-headless wget supervisor docker.io openssh-server
-ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
-RUN echo 'root:root' | chpasswd
-RUN mkdir /var/run/sshd
-RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-
-EXPOSE 22
 
 RUN wget -q -O - http://mirror.vorboss.net/apache/zookeeper/zookeeper-3.4.6/zookeeper-3.4.6.tar.gz | tar -xzf - -C /opt
 RUN mv /opt/zookeeper-3.4.6/conf/zoo_sample.cfg /opt/zookeeper-3.4.6/conf/zoo.cfg
