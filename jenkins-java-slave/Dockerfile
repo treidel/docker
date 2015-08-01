@@ -32,6 +32,9 @@ RUN echo "jenkins:jenkins" | chpasswd
 # Add user jenkins to the docker group
 RUN usermod -a -G docker jenkins
 
+# override the gid of the docker group
+RUN groupmod -g 118 docker
+
 # Standard SSH port
 EXPOSE 22
 
