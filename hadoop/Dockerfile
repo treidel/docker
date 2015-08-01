@@ -2,13 +2,16 @@ FROM reideltj/base
 MAINTAINER reideltj
 
 # install openssh 
-RUN apt-get install -y openssh-server
+RUN apt-get install -y openssh-server openssh-client
 
-# configure sshd
-RUN echo 'root:root' | chpasswd
-RUN mkdir /var/run/sshd
-RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-
+# configure passwordless sshd
+RUN rm -f /etc/ssh/ssh_host_dsa_key; ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key
+RUN rm -f /etc/ssh/ssh_host_rsa_key; ssh-keygen -q -N "" -t rsa -f /etc/ssh/ssh_host_rsa_key
+RUN ssh-keygen -q -N "" -t rsa -f /root/.ssh/id_rsa
+RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+ADD ssh_config /root/.ssh/config
+RUN chmod 600 /root/.ssh/config
+RUN chown root:root /root/.ssh/config
 EXPOSE 22
 
 # download and install hadoop
