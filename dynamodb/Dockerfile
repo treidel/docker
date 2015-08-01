@@ -2,7 +2,7 @@ FROM reideltj/base
 MAINTAINER reideltj
 
 # install pip and then use pip to install the aws cli
-RUN apt-get update; apt-get install -y python-pip; pip install awscli
+RUN apt-get install -y python-pip; pip install awscli
 
 # download + install dynamodb local
 RUN wget -q -O - http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz | tar -xzf - -C /opt
