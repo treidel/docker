@@ -1,8 +1,7 @@
 FROM ubuntu:trusty
 
-# Make sure the package repository is up to date.
-RUN apt-get update
-RUN apt-get -y upgrade
+# Make sure the package repository is up to date and add the add-apt-repository tool
+RUN apt-get update; apt-get -y upgrade; apt-get install -y software-properties-common apt-transport-https
 
 # Install a basic SSH server
 RUN apt-get install -y openssh-server
@@ -12,17 +11,14 @@ RUN mkdir -p /var/run/sshd
 # Install JDK 7 (latest edition)
 RUN apt-get install -y openjdk-7-jdk
 
-# Install docker.io
-RUN apt-get install -y docker.io
+# Install latest docker
+RUN add-apt-repository 'deb https://get.docker.io/ubuntu docker main'; apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9; apt-get -y update; apt-get install -y lxc-docker
 
 # Install git
 RUN apt-get install -y git
 
-# Install gradle 
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository ppa:cwchien/gradle
-RUN apt-get update
-RUN apt-get install -y gradle-2.3
+# Install latest gradle 
+RUN add-apt-repository ppa:cwchien/gradle; apt-get -y update; apt-get install -y gradle-2.5
 
 # Add user jenkins to the image
 RUN adduser --quiet jenkins
