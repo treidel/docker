@@ -2,7 +2,7 @@ FROM reideltj/base
 MAINTAINER reideltj
 
 # install openssh 
-RUN apt-get install -y openssh-server openssh-client
+RUN apt-get install -y openssh-server openssh-client libselinux1
 
 # configure passwordless sshd
 RUN rm -f /etc/ssh/ssh_host_dsa_key; ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key
@@ -31,7 +31,7 @@ ENV YARN_CONF_DIR $HADOOP_PREFIX/etc/hadoop
 RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME='"$JAVA_HOME"'\nexport HADOOP_PREFIX=/usr/local/hadoop\nexport HADOOP_HOME=/usr/local/hadoop\n:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 
-# create hadoop config holders
+# create hadoop folders
 RUN mkdir $HADOOP_PREFIX/input
 RUN cp $HADOOP_PREFIX/etc/hadoop/*.xml $HADOOP_PREFIX/input
 
@@ -42,7 +42,7 @@ ADD hdfs-site.xml $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
 ADD mapred-site.xml $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
 ADD yarn-site.xml $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
 
-# setup the name node
+# format the HDFS volume 
 RUN $HADOOP_PREFIX/bin/hdfs namenode -format
 
 # add the hadoop startup script
@@ -52,6 +52,14 @@ ADD start-hadoop.sh /usr/bin/start-hadoop.sh
 RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
 RUN chmod +x /usr/local/hadoop/etc/hadoop/*-env.sh
 RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
+
+# fix the 254 error code
+RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
+RUN echo "UsePAM no" >> /etc/ssh/sshd_config
+RUN echo "Port 2122" >> /etc/ssh/sshd_config
+
+# initialize hadoop directories in HDFS
+RUN service ssh start; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh; $HADOOP_PREFIX/sbin/start-dfs.sh; $HADOOP_PREFIX/bin/hdfs dfs -mkdir -p /user/root; $HADOOP_PREFIX/bin/hdfs dfs -put $HADOOP_PREFIX/etc/hadoop/ input
 
 # HDFS ports
 EXPOSE 50010 50020 50070 50075 50090
