@@ -15,8 +15,8 @@ RUN chown root:root /root/.ssh/config
 EXPOSE 22
 
 # download and install hadoop
-RUN wget -qO- http://www.us.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz | tar -xz -C /usr/local/
-RUN cd /usr/local && ln -s ./hadoop-2.7.1 hadoop
+RUN wget -qO- http://www.us.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz | tar -xz -C /usr/local/
+RUN cd /usr/local && ln -s ./hadoop-2.6.0 hadoop
 
 # configure hadoop environment variables
 ENV HADOOP_PREFIX /usr/local/hadoop
@@ -26,6 +26,7 @@ ENV HADOOP_MAPRED_HOME /usr/local/hadoop
 ENV HADOOP_YARN_HOME /usr/local/hadoop
 ENV HADOOP_CONF_DIR /usr/local/hadoop/etc/hadoop
 ENV YARN_CONF_DIR $HADOOP_PREFIX/etc/hadoop
+ENV PATH $HADOOP_COMMON_HOME/bin:$PATH
 
 # setup hadoop environment script
 RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME='"$JAVA_HOME"'\nexport HADOOP_PREFIX=/usr/local/hadoop\nexport HADOOP_HOME=/usr/local/hadoop\n:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
@@ -44,6 +45,9 @@ ADD yarn-site.xml $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
 
 # format the HDFS volume 
 RUN $HADOOP_PREFIX/bin/hdfs namenode -format
+
+# replace hadoop's native libraries with 64-bit pre-built native libraries 
+RUN rm  /usr/local/hadoop/lib/native/*; wget -qO- http://dl.bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64-2.6.0.tar | tar -x -C /usr/local/hadoop/lib/native/
 
 # add the hadoop startup script
 ADD start-hadoop.sh /usr/bin/start-hadoop.sh
