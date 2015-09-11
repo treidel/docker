@@ -28,10 +28,8 @@ RUN apt-get install -y npm nodejs curl wget
 RUN npm install -g n cordova
 RUN n stable
 
-# install android sdk
-RUN cd /opt && wget -q http://dl.google.com/android/android-sdk_r24.2-linux.tgz
-RUN cd /opt && tar xzf android-sdk_r24.2-linux.tgz
-RUN cd /opt && rm -f android-sdk_r24.2-linux.tgz
+# install android sdk as the jenkins user
+RUN cd /opt && wget -q http://dl.google.com/android/android-sdk_r24.3.4-linux.tgz && tar xzf android-sdk_r24.3.4-linux.tgz && rm -f android-sdk_r24.3.4-linux.tgz && chown -R jenkins:jenkins /opt/android-sdk-linux
 
 # Other tools and resources of Android SDK
 ENV ANDROID_HOME /opt/android-sdk-linux
